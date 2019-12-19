@@ -18,7 +18,7 @@ const (
 var CurState uint8
 
 func init() {
-	CurState = 1
+	CurState = 0
 }
 func main() {
 	var input string
@@ -57,6 +57,7 @@ func Move(key rune) (uint8, error) {
 	return INVALID, errors.New("unknown movement")
 }
 
+//CurrentState returns the current state
 func CurrentState(move uint8) uint8 {
 	if move == 1<<5 {
 		CurState = 1
