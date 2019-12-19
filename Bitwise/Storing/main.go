@@ -26,7 +26,6 @@ func main() {
 	for {
 		fmt.Scanln(&input)
 		key, _ := utf8.DecodeRuneInString(input)
-		fmt.Printf("\nSending: %v", key)
 		b, err := Move(key)
 
 		if err != nil {
@@ -36,6 +35,7 @@ func main() {
 		fmt.Printf("\nRecieved: %08b", b)
 		CurrentState(b)
 		fmt.Printf("\nCurrent State: %08b\n", CurState)
+		GetDirection()
 	}
 
 }
@@ -57,12 +57,29 @@ func Move(key rune) (uint8, error) {
 	return INVALID, errors.New("unknown movement")
 }
 
-//CurrentState returns the current state
+//CurrentState returns the current state of
 func CurrentState(move uint8) uint8 {
 	if move == 1<<5 {
-		CurState = 1
+		CurState = 0
 		return CurState
 	}
 	CurState = CurState | move
 	return CurState
+}
+
+//GetDirection prints the current direction in the bit state
+func GetDirection() {
+	if (CurState & MOV_L) != 0 {
+		fmt.Println("MOV_L")
+	}
+	if (CurState & MOV_R) != 0 {
+		fmt.Println("MOV_R")
+	}
+	if (CurState & MOV_U) != 0 {
+		fmt.Println("MOV_U")
+	}
+	if (CurState & MOV_D) != 0 {
+		fmt.Println("MOV_D")
+	}
+
 }
