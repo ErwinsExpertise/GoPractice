@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"unicode/utf8"
 )
 
@@ -16,9 +17,12 @@ const (
 )
 
 var CurState uint8
+var pos, size int
 
 func init() {
 	CurState = 0
+	size = int(math.Pow(5, 2))
+	pos = (size / 2) + 1
 }
 func main() {
 	var input string
@@ -36,6 +40,9 @@ func main() {
 		CurrentState(b)
 		fmt.Printf("\nCurrent State: %08b\n", CurState)
 		GetDirection()
+		CalcDirection()
+		ShowDirection()
+		fmt.Println()
 	}
 
 }
@@ -82,4 +89,59 @@ func GetDirection() {
 		fmt.Println("MOV_D")
 	}
 
+}
+
+//ShowDirection prints map of where value is
+func ShowDirection() {
+	columns := math.Sqrt(float64(size))
+	for i := 1; i <= size; i++ {
+		if i == pos {
+			fmt.Print(" A ")
+		} else {
+			fmt.Print(" * ")
+		}
+		if i%int(columns) == 0 { // checks if the value is multiple
+			fmt.Println()
+		}
+	} //end for
+
+}
+
+//CalcDirection calculates where the value should be on the map
+func CalcDirection() {
+	if (CurState & MOV_L) != 0 {
+		pos--
+	}
+	if (CurState & MOV_R) != 0 {
+		pos++
+	}
+	if (CurState & MOV_U) != 0 {
+		// EXAMPLE (Table size of 25):
+		// At 13 need to get to 8
+		// 13/5  = 2.6 rounded down to 2 which means theres 2 rows left and it needs to be on row 2
+		// Because of POS 13 we know it is as 3
+		// 2 * 5 = 10 , 13 - 10 = POS 3
+		// [(2-1) * 5] = 5 , 5 + 3 = 8
+		column := int(math.Sqrt(float64(size)))
+		row := int(math.Floor(float64((pos / column))))
+		loc := pos - (row * column)
+
+		if row == 1 {
+			pos = row * loc
+		} else {
+			pos = ((row - 1) * column) + loc
+		}
+
+	}
+	if (CurState & MOV_D) != 0 {
+		column := int(math.Sqrt(float64(size)))
+		row := int(math.Ceil(float64((pos / column))))
+		loc := pos - (row * column)
+
+		if row == 1 {
+			pos = row * loc
+		} else {
+			pos = ((row + 1) * column) + loc
+		}
+	}
 }
