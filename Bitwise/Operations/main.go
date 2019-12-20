@@ -10,7 +10,7 @@ var op string
 var num1, num2 int
 
 func init() {
-	flag.StringVar(&op, "op", "xor", "Perform the ^ bitwise function")
+	flag.StringVar(&op, "op", "", "Specify which bitwise operation to perform( xor , and , or , sl , sr")
 	flag.IntVar(&num1, "num1", 1, "Bit 1")
 	flag.IntVar(&num2, "num2", 2, "Bit 2")
 
@@ -37,7 +37,7 @@ func main() {
 		ShiftRFunc(n1, n2, op)
 		break
 	default:
-		log.Panicln("Invalid operation")
+		log.Panicln("Invalid operation or none specified")
 		break
 
 	}
