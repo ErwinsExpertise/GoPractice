@@ -109,6 +109,8 @@ func ShowDirection() {
 
 //CalcDirection calculates where the value should be on the map
 func CalcDirection() {
+	column := int(math.Sqrt(float64(size)))
+
 	if (CurState & MOV_L) != 0 {
 		pos--
 	}
@@ -122,7 +124,6 @@ func CalcDirection() {
 		// Because of POS 13 we know it is as 3
 		// 2 * 5 = 10 , 13 - 10 = POS 3
 		// [(2-1) * 5] = 5 , 5 + 3 = 8
-		column := int(math.Sqrt(float64(size)))
 		row := int(math.Floor(float64((pos / column))))
 		loc := pos - (row * column)
 
@@ -134,14 +135,8 @@ func CalcDirection() {
 
 	}
 	if (CurState & MOV_D) != 0 {
-		column := int(math.Sqrt(float64(size)))
 		row := int(math.Ceil(float64((pos / column))))
 		loc := pos - (row * column)
-
-		if row == 1 {
-			pos = row * loc
-		} else {
-			pos = ((row + 1) * column) + loc
-		}
+		pos = ((row + 1) * column) + loc
 	}
 }
