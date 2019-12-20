@@ -17,12 +17,13 @@ const (
 )
 
 var CurState uint8
-var pos, size int
+var pos, size, column int
 
 func init() {
 	CurState = 0
 	size = int(math.Pow(5, 2))
 	pos = (size / 2) + 1
+	column = int(math.Sqrt(float64(size)))
 }
 func main() {
 	var input string
@@ -76,16 +77,16 @@ func CurrentState(move uint8) uint8 {
 
 //GetDirection prints the current direction in the bit state
 func GetDirection() {
-	if (CurState & MOV_L) != 0 {
+	if hasCurState(MOV_L) {
 		fmt.Println("MOV_L")
 	}
-	if (CurState & MOV_R) != 0 {
+	if hasCurState(MOV_R) {
 		fmt.Println("MOV_R")
 	}
-	if (CurState & MOV_U) != 0 {
+	if hasCurState(MOV_U) {
 		fmt.Println("MOV_U")
 	}
-	if (CurState & MOV_D) != 0 {
+	if hasCurState(MOV_D) {
 		fmt.Println("MOV_D")
 	}
 
@@ -93,14 +94,13 @@ func GetDirection() {
 
 //ShowDirection prints map of where value is
 func ShowDirection() {
-	columns := math.Sqrt(float64(size))
 	for i := 1; i <= size; i++ {
 		if i == pos {
 			fmt.Print(" + ")
 		} else {
 			fmt.Print(" * ")
 		}
-		if i%int(columns) == 0 { // checks if the value is multiple
+		if i%column == 0 { // checks if the value is multiple
 			fmt.Println()
 		}
 	} //end for
@@ -109,15 +109,14 @@ func ShowDirection() {
 
 //CalcDirection calculates where the value should be on the map
 func CalcDirection() {
-	column := int(math.Sqrt(float64(size)))
 
-	if (CurState & MOV_L) != 0 {
+	if hasCurState(MOV_L) {
 		pos--
 	}
-	if (CurState & MOV_R) != 0 {
+	if hasCurState(MOV_R) {
 		pos++
 	}
-	if (CurState & MOV_U) != 0 {
+	if hasCurState(MOV_U) {
 		// EXAMPLE (Table size of 25):
 		// At 13 need to get to 8
 		// 13/5  = 2.6 rounded down to 2 which means theres 2 rows left and it needs to be on row 2
@@ -134,9 +133,17 @@ func CalcDirection() {
 		}
 
 	}
-	if (CurState & MOV_D) != 0 {
+	if hasCurState(MOV_D) {
 		row := int(math.Ceil(float64((pos / column))))
 		loc := pos - (row * column)
 		pos = ((row + 1) * column) + loc
 	}
+}
+
+//hasCurState determines whether or not the bitmask contains a specified state
+func hasCurState(mov uint8) bool {
+	if (CurState & mov) != 0 {
+		return true
+	}
+	return false
 }
