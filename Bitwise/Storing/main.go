@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	MOV_L   = 1      // a 97
-	MOV_R   = 1 << 1 // d 100
-	MOV_U   = 1 << 2 // w 119
-	MOV_D   = 1 << 3 // s 115
-	INVALID = 1 << 5 // Invalid move
+	MOV_L   = 1      // a 97         00000001
+	MOV_R   = 1 << 1 // d 100        00000010
+	MOV_U   = 1 << 2 // w 119        00000100
+	MOV_D   = 1 << 3 // s 115        00001000
+	INVALID = 1 << 5 // Invalid move 00100000
 )
 
 var CurState uint8
@@ -30,22 +30,25 @@ func main() {
 
 	for {
 		fmt.Scanln(&input)
-		key, _ := utf8.DecodeRuneInString(input)
-		b, err := Move(key)
+		Process(input)
+	}
+}
 
-		if err != nil {
-			log.Println(err)
-		}
+func Process(input string) {
+	key, _ := utf8.DecodeRuneInString(input)
+	b, err := Move(key)
 
-		fmt.Printf("\nRecieved: %08b", b)
-		CurrentState(b)
-		fmt.Printf("\nCurrent State: %08b\n", CurState)
-		GetDirection()
-		CalcDirection()
-		ShowDirection()
-		fmt.Println()
+	if err != nil {
+		log.Println(err)
 	}
 
+	fmt.Printf("\nRecieved: %08b", b)
+	CurrentState(b)
+	fmt.Printf("\nCurrent State: %08b\n", CurState)
+	GetDirection()
+	CalcDirection()
+	ShowDirection()
+	fmt.Println()
 }
 
 //Move is used to process the key input
@@ -119,10 +122,10 @@ func CalcDirection() {
 	if hasCurState(MOV_U) {
 		// EXAMPLE (Table size of 25):
 		// At 13 need to get to 8
-		// 13/5  = 2.6 rounded down to 2 which means theres 2 rows left and it needs to be on row 2
+		// 13/5  = 2.6 rounded down to 2 which means theres 2 rows above and it needs to be on row 2
 		// Because of POS 13 we know it is as 3
 		// 2 * 5 = 10 , 13 - 10 = POS 3
-		// [(2-1) * 5] = 5 , 5 + 3 = 8
+		// [(2-1) * 5] + 3 = 8
 		row := int(math.Floor(float64((pos / column))))
 		loc := pos - (row * column)
 
@@ -142,7 +145,7 @@ func CalcDirection() {
 
 //hasCurState determines whether or not the bitmask contains a specified state
 func hasCurState(mov uint8) bool {
-	if (CurState & mov) != 0 {
+	if (CurState & mov) != 0 { // checks if state exists in the bitmask
 		return true
 	}
 	return false
