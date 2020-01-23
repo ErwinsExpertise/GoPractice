@@ -3,15 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
+	"strconv"
 	"sync"
 
 	"github.com/google/uuid"
 	"github.com/minio/minio-go"
 )
 
-func UploadFile(client *minio.Client, spaceName string) {
+func UploadFile(client *minio.Client, spaceName, folder string) {
 
 	id, err := uuid.NewUUID()
 	if err != nil {
@@ -21,13 +21,16 @@ func UploadFile(client *minio.Client, spaceName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	size := rand.Int63n(2000)
-	if err := file.Truncate(size); err != nil {
+
+	//size := rand.Int63n(2000)
+
+	// 1 << 20 = 1048576 = 1MB
+	if err := file.Truncate(1 << 20); err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 	fmt.Println("Attempting: " + file.Name())
-	n, err := client.PutObject(spaceName, file.Name(), file, -1, minio.PutObjectOptions{ContentType: "text/plain"})
+	n, err := client.PutObject(spaceName, folder+"/"+file.Name()[3:], file, -1, minio.PutObjectOptions{ContentType: "text/plain"})
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -41,6 +44,7 @@ func main() {
 	secKey := ""
 	endpoint := "nyc3.digitaloceanspaces.com"
 	spaceName := "" // Space names must be globally unique
+	folder := ""
 	ssl := false
 
 	// Initiate a client using DigitalOcean Spaces.
@@ -49,14 +53,18 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("Going to upload")
-	var waitgroup sync.WaitGroup
-	waitgroup.Add(10)
-	for i := 0; i < 10; i++ {
-		go func() {
-			UploadFile(client, spaceName)
-			waitgroup.Done()
-		}()
+	for j := 0; j <= 200; j++ {
+		folder = strconv.Itoa(j)
+		var waitgroup sync.WaitGroup
+		waitgroup.Add(10)
+		for i := 0; i < 10; i++ {
+			go func() {
+				UploadFile(client, spaceName, folder)
+				waitgroup.Done()
+			}()
 
+		}
+		waitgroup.Wait()
 	}
-	waitgroup.Wait()
+
 }

@@ -126,6 +126,8 @@ func CalcDirection() {
 		// Because of POS 13 we know it is as 3
 		// 2 * 5 = 10 , 13 - 10 = POS 3
 		// [(2-1) * 5] + 3 = 8
+
+		// Less complicated way would be to just do pos = pos - 5
 		row := int(math.Floor(float64((pos / column))))
 		loc := pos - (row * column)
 
